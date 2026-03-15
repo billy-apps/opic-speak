@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "OPIC SPEAK",
+    "slug": "opic-speak",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "opic-speak",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#F5F7F3"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.yourname.opicspeak"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
