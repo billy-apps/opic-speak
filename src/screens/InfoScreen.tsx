@@ -3,7 +3,7 @@ import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SV_DATA, GUIDE_DATA } from '../data/survey';
+import { SV_DATA, GUIDE_DATA, GuideItem } from '../data/survey';
 import { C } from '../theme';
 import { loadState, saveState, AppState } from '../utils/storage';
 
@@ -115,7 +115,7 @@ export default function InfoScreen() {
         subtitle="시험 구조부터 AL 전략까지"
       />
 
-      {GUIDE_DATA.map((g, idx) => {
+      {GUIDE_DATA.map((g: GuideItem, idx) => {
         const open = !!state['gd' + idx];
         return (
           <View key={'gd' + idx} style={[styles.acc, open && styles.accOpen]}>
@@ -132,18 +132,18 @@ export default function InfoScreen() {
 
             {open && (
               <View style={styles.body}>
-                {'note' in g && (
+                {g.note && (
                   <View style={styles.ibox}>
                     <Text style={styles.iboxT}>기본 정보</Text>
-                    <Text style={styles.iboxB}>{(g as any).note}</Text>
+                    <Text style={styles.iboxB}>{g.note}</Text>
                   </View>
                 )}
-                {'rows' in g && (
+                {g.rows && (
                   <View style={styles.table}>
                     <View style={styles.thr}>
                       {['등급','수준','취업'].map(h=><Text key={h} style={styles.th}>{h}</Text>)}
                     </View>
-                    {(g as any).rows.map((r: any, i: number) => (
+                    {g.rows.map((r, i) => (
                       <View key={i} style={styles.tr}>
                         <Text style={styles.td}>{r.grade}</Text>
                         <Text style={styles.td}>{r.level}</Text>
@@ -152,7 +152,7 @@ export default function InfoScreen() {
                     ))}
                   </View>
                 )}
-                {'steps' in g && (g as any).steps.map((s: any, i: number) => (
+                {g.steps && g.steps.map((s, i) => (
                   <View key={i} style={styles.step}>
                     <View style={styles.stepDot}>
                       <Text style={styles.stepN}>{s.n}</Text>
@@ -163,13 +163,13 @@ export default function InfoScreen() {
                     </View>
                   </View>
                 ))}
-                {'saRows' in g && (
+                {g.saRows && (
                   <>
                     <View style={styles.table}>
                       <View style={styles.thr}>
                         {['선택','난이도','목표'].map(h=><Text key={h} style={styles.th}>{h}</Text>)}
                       </View>
-                      {(g as any).saRows.map((r: any, i: number) => (
+                      {g.saRows.map((r, i) => (
                         <View key={i} style={styles.tr}>
                           <Text style={styles.td}>{r.sel}</Text>
                           <Text style={styles.td}>{r.diff}</Text>
@@ -180,16 +180,16 @@ export default function InfoScreen() {
                     <View style={styles.dodont}>
                       <View style={[styles.ddBox, {borderColor: C.em}]}>
                         <Text style={[styles.ddT, {color: C.em}]}>✓ DO</Text>
-                        {(g as any).dos.map((d: string, i: number) => <Text key={i} style={styles.ddI}>✅ {d}</Text>)}
+                        {g.dos?.map((d, i) => <Text key={i} style={styles.ddI}>✅ {d}</Text>)}
                       </View>
                       <View style={[styles.ddBox, {borderColor: C.rose}]}>
                         <Text style={[styles.ddT, {color: C.rose}]}>✕ DON'T</Text>
-                        {(g as any).donts.map((d: string, i: number) => <Text key={i} style={styles.ddI}>❌ {d}</Text>)}
+                        {g.donts?.map((d, i) => <Text key={i} style={styles.ddI}>❌ {d}</Text>)}
                       </View>
                     </View>
                   </>
                 )}
-                {'tips' in g && !('fillers' in g) && (g as any).tips.map((t: any, i: number) => (
+                {g.tips && !g.fillers && g.tips.map((t, i) => (
                   <View key={i} style={styles.tip}>
                     <View style={[styles.tipN, styles.tipNGold]}>
                       <Text style={[styles.tipNText, styles.tipNTextGold]}>{i+1}</Text>
@@ -200,21 +200,21 @@ export default function InfoScreen() {
                     </View>
                   </View>
                 ))}
-                {'fillers' in g && (
+                {g.fillers && (
                   <>
                     <View style={styles.dodont}>
                       <View style={[styles.ddBox, {borderColor: C.em}]}>
                         <Text style={[styles.ddT, {color: C.em}]}>시험 전날</Text>
-                        {(g as any).dos.map((d: string, i: number) => <Text key={i} style={styles.ddI}>✅ {d}</Text>)}
+                        {g.dos?.map((d, i) => <Text key={i} style={styles.ddI}>✅ {d}</Text>)}
                       </View>
                       <View style={[styles.ddBox, {borderColor: C.sky}]}>
                         <Text style={[styles.ddT, {color: C.sky}]}>당일</Text>
-                        {(g as any).dayDos.map((d: string, i: number) => <Text key={i} style={styles.ddI}>✅ {d}</Text>)}
+                        {g.dayDos?.map((d, i) => <Text key={i} style={styles.ddI}>✅ {d}</Text>)}
                       </View>
                     </View>
                     <View style={styles.ibox}>
                       <Text style={styles.iboxT}>막혔을 때 필러</Text>
-                      {(g as any).fillers.map((f: string, i: number) => (
+                      {g.fillers.map((f, i) => (
                         <Text key={i} style={styles.iboxB}>• {f}</Text>
                       ))}
                       <Text style={[styles.iboxB, {fontWeight:'700', color: C.ink, marginTop:4}]}>절대 침묵하지 마세요!</Text>

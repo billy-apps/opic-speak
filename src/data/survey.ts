@@ -1,4 +1,34 @@
-export const SV_DATA = [
+export interface SvTip { t: string; }
+export interface SvTopic { nm: string; diff: string; c: string; }
+export interface SvItem {
+  grade: string;
+  c: string;
+  bg: string;
+  desc: string;
+  tips: SvTip[];
+  topics: SvTopic[];
+}
+
+export interface GuideRow { grade: string; level: string; job: string; }
+export interface GuideStep { n: string; t: string; d: string; }
+export interface GuideSaRow { sel: string; diff: string; target: string; }
+export interface GuideTip { label: string; text: string; }
+export interface GuideItem {
+  num: string;
+  title: string;
+  sub: string;
+  note?: string;
+  rows?: GuideRow[];
+  steps?: GuideStep[];
+  saRows?: GuideSaRow[];
+  dos?: string[];
+  donts?: string[];
+  dayDos?: string[];
+  tips?: GuideTip[];
+  fillers?: string[];
+}
+
+export const SV_DATA: SvItem[] = [
   {
     grade: 'IM',
     c: '#2472A0',
@@ -57,7 +87,7 @@ export const SV_DATA = [
   },
 ];
 
-export const GUIDE_DATA = [
+export const GUIDE_DATA: GuideItem[] = [
   {
     num: '01',
     title: 'OPIc이란?',

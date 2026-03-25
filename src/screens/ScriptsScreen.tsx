@@ -1,62 +1,23 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity,
-  FlatList, StyleSheet, StatusBar,
+  FlatList, StyleSheet, StatusBar, Platform,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { SCRIPTS, COLLECTIONS, Script } from '../data/scripts';
-import DetailSheet from '../components/DetailSheet';
+import { SCRIPTS, COLLECTIONS } from '../data/scripts';
 import { C, Level, LV_COLORS } from '../theme';
-import { loadState, saveState, AppState } from '../utils/storage';
 
 export default function ScriptsScreen() {
   const insets = useSafeAreaInsets();
-  const [state, setState] = useState<AppState>({});
+  const router = useRouter();
   const [curLv, setCurLv] = useState<Level>('ih');
   const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(null);
-  const [openScript, setOpenScript] = useState<Script | null>(null);
-
-  useEffect(() => {
-    loadState().then(setState);
-  }, []);
-
-  const persist = useCallback((next: AppState) => {
-    setState(next);
-    saveState(next);
-  }, []);
 
   const scriptsInCollection = selectedCollectionId
     ? SCRIPTS.filter((s) => s.collectionId === selectedCollectionId)
     : [];
-
-  const handleOpen = (sc: Script) => {
-    setOpenScript(sc);
-  };
-
-  const detailLv: Level = openScript
-    ? ((state['lv_' + openScript.id] as Level) || curLv)
-    : 'ih';
-
-  const detailValues: Record<string, string> =
-    openScript
-      ? (state['inp_' + openScript.id + '_' + detailLv] || {})
-      : {};
-
-  const handleLvChange = (lv: Level) => {
-    if (!openScript) return;
-    persist({ ...state, ['lv_' + openScript.id]: lv });
-  };
-
-  const handleValueChange = (key: string, val: string) => {
-    if (!openScript) return;
-    const lv = detailLv;
-    const prev = state['inp_' + openScript.id + '_' + lv] || {};
-    persist({
-      ...state,
-      ['inp_' + openScript.id + '_' + lv]: { ...prev, [key]: val },
-    });
-  };
 
   return (
     <>
@@ -98,7 +59,7 @@ export default function ScriptsScreen() {
                     active && { backgroundColor: col.bg, borderColor: col.border },
                   ]}
                   onPress={() => {
-                    Haptics.selectionAsync();
+                    if (Platform.OS !== 'web') Haptics.selectionAsync();
                     setCurLv(lv);
                   }}
                 >
@@ -126,6 +87,8 @@ export default function ScriptsScreen() {
                   style={styles.collectionCard}
                   onPress={() => setSelectedCollectionId(coll)}
                   activeOpacity={0.7}
+                  accessibilityLabel={`${coll} 컬렉션, 스크립트 ${count}개`}
+                  accessibilityRole="button"
                 >
                   <Text style={styles.collectionCardTitle}>{coll}</Text>
                   <Text style={styles.collectionCardCount}>스크립트 {count}개</Text>
@@ -141,31 +104,21 @@ export default function ScriptsScreen() {
             keyExtractor={(s) => s.id}
             contentContainerStyle={[styles.grid, { paddingBottom: insets.bottom + 80 }]}
             renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.card}
-                  onPress={() => handleOpen(item)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.cardEm}>{item.em}</Text>
-                  <Text style={styles.cardNm}>{item.nm}</Text>
-                  <Text style={styles.cardQ}>Q {(item.qs || []).length}개</Text>
-                </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.card}
+                onPress={() => router.push({ pathname: '/script/[id]', params: { id: item.id, defaultLv: curLv } })}
+                activeOpacity={0.7}
+                accessibilityLabel={`${item.nm} 스크립트 열기`}
+                accessibilityRole="button"
+              >
+                <Text style={styles.cardEm}>{item.em}</Text>
+                <Text style={styles.cardNm}>{item.nm}</Text>
+                <Text style={styles.cardQ}>Q {(item.qs || []).length}개</Text>
+              </TouchableOpacity>
             )}
           />
         )}
       </View>
-
-      {/* Detail bottom sheet */}
-      {openScript && (
-        <DetailSheet
-          script={openScript}
-          level={detailLv}
-          values={detailValues}
-          onClose={() => setOpenScript(null)}
-          onLevelChange={handleLvChange}
-          onValueChange={handleValueChange}
-        />
-      )}
     </>
   );
 }
@@ -214,6 +167,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5, borderColor: C.line,
     borderRadius: 15, padding: 13,
     position: 'relative',
+    marginBottom: 8,
   },
   cardEm: { fontSize: 22, marginBottom: 6 },
   cardNm: { fontSize: 12, fontWeight: '700', color: C.ink, marginBottom: 4, lineHeight: 18 },

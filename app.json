@@ -8,6 +8,8 @@
     "scheme": "opic-speak",
     "userInterfaceStyle": "light",
     "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
       "backgroundColor": "#F5F7F3"
     },
     "ios": {
